@@ -1,0 +1,23 @@
+{
+  "name": "ai-quote-journal",
+  "version": "1.0.0",
+  "description": "AI Quote Journal is a web-based journal app where users can securely log in, write personal journal entries, and receive AI-generated summaries or inspirational quotes based on their writing. All journal entries and AI responses are stored in a database for each user.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prisma": "^6.11.1"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.11.1",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
