@@ -7,20 +7,29 @@ const prisma = new PrismaClient(); // Our magic database friend.
 
 // This function lets a friend write a new journal entry
 async function createEntry(req, res) {
-  const { entryText, aiResponse } = req.body; // What our friend wrote
+  const { entryText, aiResponse, tags } = req.body; // What our friend wrote
   const userId = req.user.userId; // Who is our friend?
   if (!entryText) {
     // If they forgot to write something
     return res.status(400).json({ error: 'Entry text is required.' });
   }
   try {
+    // Clean up tags: trim and filter out empty
+    const cleanTags = (tags || []).map(tagName => tagName.trim()).filter(Boolean);
+    // Prepare tag connectOrCreate array
+    const tagData = cleanTags.map(tagName => ({
+      where: { name: tagName },
+      create: { name: tagName }
+    }));
     // Add the new story to our magic database
     const entry = await prisma.journalEntry.create({
       data: {
         entryText,
-        aiResponse: aiResponse || '', // The magic AI answer (if any)
+        aiResponse: aiResponse || '',
         userId,
+        tags: { connectOrCreate: tagData }
       },
+      include: { tags: true }
     });
     res.status(201).json(entry); // Yay! Story saved
   } catch (err) {
@@ -35,7 +44,8 @@ async function getEntries(req, res) {
     // Find all the stories our friend wrote
     const entries = await prisma.journalEntry.findMany({
       where: { userId },
-      orderBy: { createdAt: 'desc' }, // Show newest first
+      orderBy: { createdAt: 'desc' },
+      include: { tags: true }
     });
     res.json(entries); // Here are your stories!
   } catch (err) {
@@ -57,6 +67,7 @@ async function getEntryById(req, res) {
         id: entryId,
         userId: userId,
       },
+      include: { tags: true }
     });
     if (!entry) {
       return res.status(404).json({ error: 'Entry not found.' }); // No story found!
@@ -71,7 +82,7 @@ async function getEntryById(req, res) {
 async function updateEntry(req, res) {
   const userId = req.user.userId; // Who is our friend?
   const entryId = parseInt(req.params.id, 10); // Which story?
-  const { entryText } = req.body; // What do they want to change?
+  const { entryText, tags } = req.body; // What do they want to change?
 
   if (!entryText) {
     return res.status(400).json({ error: 'Entry text is required.' });
@@ -85,10 +96,24 @@ async function updateEntry(req, res) {
     if (!entry) {
       return res.status(404).json({ error: 'Entry not found.' });
     }
+    // Clean up tags: trim and filter out empty
+    const cleanTags = (tags || []).map(tagName => tagName.trim()).filter(Boolean);
+    // Prepare tag connectOrCreate array
+    const tagData = cleanTags.map(tagName => ({
+      where: { name: tagName },
+      create: { name: tagName }
+    }));
     // Change the story in our magic database
     const updatedEntry = await prisma.journalEntry.update({
       where: { id: entryId },
-      data: { entryText }
+      data: {
+        entryText,
+        tags: {
+          set: [], // Remove all old tags
+          connectOrCreate: tagData // Add new tags
+        }
+      },
+      include: { tags: true }
     });
     res.json(updatedEntry); // Here is your new story!
   } catch (err) {

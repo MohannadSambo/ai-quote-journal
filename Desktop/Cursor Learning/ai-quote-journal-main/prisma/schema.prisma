@@ -26,4 +26,11 @@ model JournalEntry {
   aiResponse String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  tags       Tag[]    // Many-to-many relation with Tag
+}
+
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  entries JournalEntry[] // Many-to-many relation with JournalEntry
 } 

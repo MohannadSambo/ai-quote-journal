@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
+import Card from '../Components/Card';
 
 export default function SignUp({ onSwitch }) {
   // These are the boxes where friends type their email and password
@@ -23,7 +24,7 @@ export default function SignUp({ onSwitch }) {
   };
 
   return (
-    <div style={{ maxWidth: 300, margin: 'auto', textAlign: 'center' }}>
+    <Card>
       <h2>Sign Up</h2>
       <form onSubmit={handleSignUp}>
         <input
@@ -32,7 +33,6 @@ export default function SignUp({ onSwitch }) {
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
-          style={{ width: '100%', marginBottom: 8 }}
         />
         <input
           type="password"
@@ -40,13 +40,14 @@ export default function SignUp({ onSwitch }) {
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
-          style={{ width: '100%', marginBottom: 8 }}
         />
-        <button type="submit" style={{ width: '100%' }}>Sign Up</button>
+        <button className="button-accent" type="submit">Sign Up</button>
       </form>
       <p>{message}</p>
       {/* Button to switch to the login page if you already have an account */}
-      <button onClick={onSwitch} style={{ marginTop: 8 }}>Already have an account? Log In</button>
-    </div>
+      <button className="button-accent" onClick={onSwitch} style={{ marginTop: 8 }}>
+        Already have an account? Log In
+      </button>
+    </Card>
   );
 }
